@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Lộ Trình Phượt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #fdcdcd;
+            font-family: 'Nunito', sans-serif;
+            margin: 0; padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            font-family: 'Amatic SC', cursive;
+            text-align: center;
+            color: #d32f2f;
+        }
+        h1 { font-size: 3rem; margin-bottom: 10px; }
+        h2 { font-size: 2rem; border-bottom: 2px dashed #fdcdcd; padding-bottom: 10px; margin-top: 30px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus { border-color: #ff4081; outline: none; }
+
+        .row { display: flex; gap: 15px; }
+        .col { flex: 1; }
+
+        /* Style cho danh sách địa điểm */
+        .place-item {
+            background: #fff0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            position: relative;
+            border: 1px solid #ffcdd2;
+        }
+        .btn-remove {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: #ff5252; color: white;
+            border: none; width: 25px; height: 25px;
+            border-radius: 50%; cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 10px;
+            background: #fff;
+            border: 2px dashed #aaa;
+            color: #aaa;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-add:hover { border-color: #ff4081; color: #ff4081; }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #1976D2;
+            color: white;
+            font-family: 'Amatic SC', cursive;
+            font-size: 28px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.2s;
+        }
+        .btn-submit:hover { transform: scale(1.02); background: #1565C0; }
+
+        .preview-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            display: none; /* Ẩn mặc định */
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Thiết Kế Chuyến Đi 🛵</h1>
+        <p style="text-align: center; color: #777;">Điền thông tin bên dưới để tạo bản đồ du lịch</p>
+
+        <form id="tripForm">
+            <h2>1. Nhân Vật</h2>
+            <div class="row">
+                <div class="col">
+                    <label>Người lái (Driver)</label>
+                    <input type="text" id="driverName" value="Anh" placeholder="Tên">
+                    <select id="driverFace" style="margin-top: 5px;">
+                        </select>
+                </div>
+                <div class="col">
+                    <label>Người ngồi sau</label>
+                    <input type="text" id="passName" value="Em" placeholder="Tên">
+                    <select id="passFace" style="margin-top: 5px;">
+                        </select>
+                </div>
+            </div>
+
+            <h2>2. Lời Nhắn</h2>
+            <div class="form-group">
+                <label>Tiêu đề (Đầu trang)</label>
+                <input type="text" id="headerText" value="Cuộn xuống để đi chơi nè!">
+            </div>
+            <div class="form-group">
+                <label>Lời kết (Cuối trang)</label>
+                <input type="text" id="footerText" value="Đi chơi thôi!">
+            </div>
+
+            <h2>3. Các Địa Điểm</h2>
+            <div id="placesContainer">
+                </div>
+            
+            <button type="button" class="btn-add" onclick="addPlaceInput()">+ Thêm địa điểm mới</button>
+
+            <button type="button" class="btn-submit" onclick="generateLink()">✨ TẠO & XEM BẢN ĐỒ ✨</button>
+            
+            <div id="resultArea" class="preview-box">
+                <p><strong>Link của bạn:</strong></p>
+                <a id="finalLink" href="#" target="_blank">Click vào đây để mở</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+    const icons = ["🐨","🐯","🦁","🐮","🐰","🐻","🐻‍❄️","🐼","🦝","🐶","🐱","🐭","🐹","🐷","🐺","🦊","🐸"];
+    
+    // Mặc định
+    let places = [
+        { name: "Nhà", description: "Đón đi chơi nè" },
+        { name: "Ăn uống", description: "Đi ăn bún bò" },
+        { name: "Công viên", description: "Đi dạo mát" },
+        { name: "Nhà", description: "Về ngủ" }
+    ];
+
+    function init() {
+        // 1. Render Select Box
+        const driverSelect = document.getElementById('driverFace');
+        const passSelect = document.getElementById('passFace');
+        
+        icons.forEach((icon, index) => {
+            const option = `<option value="${index}">${icon} Con vật ${index + 1}</option>`;
+            driverSelect.innerHTML += option;
+            passSelect.innerHTML += option;
+        });
+        driverSelect.value = 0;
+        passSelect.value = 1;
+
+        // 2. Render Input
+        renderPlacesInputs();
+    }
+
+    // --- HÀM MÃ HÓA AN TOÀN CHO URL (QUAN TRỌNG) ---
+    function encodeData(obj) {
+        // 1. Chuyển Object -> JSON String
+        const jsonStr = JSON.stringify(obj);
+        // 2. Mã hóa UTF-8 an toàn cho tiếng Việt/Emoji
+        const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+        // 3. Biến đổi thành URL-Safe Base64 (Thay + thành -, / thành _)
+        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function renderPlacesInputs() {
+        const container = document.getElementById('placesContainer');
+        container.innerHTML = ""; 
+
+        places.forEach((place, index) => {
+            const html = `
+                <div class="place-item">
+                    <button type="button" class="btn-remove" onclick="removePlace(${index})">×</button>
+                    <div class="form-group">
+                        <label>Địa điểm ${index + 1}</label>
+                        <input type="text" class="input-place-name" value="${place.name}" placeholder="Tên địa điểm">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="input-place-desc" value="${place.description || ''}" placeholder="Mô tả">
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+    }
+
+    function addPlaceInput() {
+        saveCurrentInputValues(); // Lưu cái cũ trước khi thêm
+        places.push({ name: "", description: "" });
+        renderPlacesInputs();
+    }
+
+    function removePlace(index) {
+        if (places.length <= 2) {
+            alert("Cần ít nhất 2 địa điểm!");
+            return;
+        }
+        saveCurrentInputValues();
+        places.splice(index, 1);
+        renderPlacesInputs();
+    }
+
+    function saveCurrentInputValues() {
+        const nameInputs = document.querySelectorAll('.input-place-name');
+        const descInputs = document.querySelectorAll('.input-place-desc');
+        
+        places = [];
+        nameInputs.forEach((input, i) => {
+            places.push({
+                name: input.value,
+                description: descInputs[i].value // ĐỒNG NHẤT TÊN BIẾN LÀ description
+            });
+        });
+    }
+
+    function generateLink() {
+        saveCurrentInputValues(); // Lưu lần cuối
+
+        // Lọc bỏ các ô trống
+        const finalPlaces = places.filter(p => p.name.trim() !== "");
+
+        if (finalPlaces.length < 2) {
+            alert("Vui lòng nhập ít nhất 2 địa điểm!");
+            return;
+        }
+
+        const config = {
+            driver: { 
+                name: document.getElementById('driverName').value, 
+                face: parseInt(document.getElementById('driverFace').value) 
+            },
+            passenger: { 
+                name: document.getElementById('passName').value, 
+                face: parseInt(document.getElementById('passFace').value) 
+            },
+            header: document.getElementById('headerText').value,
+            footer: document.getElementById('footerText').value,
+            places: finalPlaces,
+            
+            segmentHeight: 500,
+            paddingTop: 300,
+            paddingBottom: 200,
+            svgWidth: 500
+        };
+
+        // GỌI HÀM MÃ HÓA MỚI
+        const encoded = encodeData(config);
+
+        // Tạo Link
+        // LƯU Ý: Sửa tên file 'index.html' thành tên file bản đồ thực tế của bạn
+        const mapFileName = "index.html"; 
+        const fullUrl = `${window.location.origin}?data=${encoded}`;
+
+        // Hiển thị
+        document.getElementById('resultArea').style.display = 'block';
+        const linkTag = document.getElementById('finalLink');
+        linkTag.href = fullUrl;
+        linkTag.innerText = fullUrl;
+        
+        // Mở luôn
+        // window.open(fullUrl, '_blank'); 
+    }
+
+    init();
+</script>
+</body>
+</html>

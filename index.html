@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hành trình Dynamic Height</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fdcdcd;
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #path-road {
+            fill: none;
+            stroke: #795548;
+            stroke-width: 12;
+            stroke-dasharray: 20, 15;
+            stroke-linecap: round;
+        }
+
+        .landmark {
+            font-family: 'Amatic SC', cursive;
+            font-size: 35px;
+            font-weight: bold;
+            fill: #d32f2f;
+            text-anchor: middle;
+            text-shadow: 2px 2px 0px white;
+        }
+
+        .description {
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            fill: #000;
+            text-anchor: middle;
+            /* font-style: italic; */
+        }
+
+        /* --- STYLE MỚI CHO HIỆU ỨNG SÁNG/TỐI --- */
+        .place-group {
+            opacity: 0.15;
+            /* Mặc định mờ đi (như chưa đi tới) */
+            transition: all 0.5s ease-out;
+            /* Hiệu ứng chuyển đổi mượt */
+            transform-box: fill-box;
+            transform-origin: center;
+            transform: scale(0.9);
+            /* Nhỏ hơn xíu */
+            filter: grayscale(100%);
+            /* Trắng đen */
+        }
+
+        .place-group.active {
+            opacity: 1;
+            /* Sáng rõ */
+            transform: scale(1.1);
+            /* Phóng to lên chút cho nổi bật */
+            filter: grayscale(0%);
+            /* Có màu lại */
+        }
+
+        /* --------------------------------------- */
+
+        .tree {
+            position: absolute;
+            font-size: 40px;
+            z-index: 2;
+        }
+
+        .header,
+        .footer {
+            font-family: 'Amatic SC', cursive;
+            height: 30vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #fdcdcd;
+            color: white;
+            font-size: 2.5rem;
+            z-index: 10;
+            position: relative;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .rider-name {
+            font-family: 'Amatic SC', cursive;
+            font-size: 30px;
+            font-weight: bold;
+            fill: #333;
+            text-anchor: middle;
+            text-shadow: 1px 1px 0 #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1 id="header-text">Loading...</h1>
+    </div>
+
+    <div class="map-container" id="map-container">
+        <svg id="main-svg" viewBox="0 0 500 1000" preserveAspectRatio="none">
+
+            <path id="path-road" d="" />
+
+            <g id="places-group"></g>
+
+            <g id="bike-group">
+                <text x="-40" y="25" font-size="150"
+                    style="transform: scaleX(-1); transform-box: fill-box; transform-origin: center;">🛵</text>
+                <g transform="translate(15, -35)">
+                    <text id="passenger-face" y="6" font-size="40" text-anchor="middle">🐰</text>
+                    <text id="passenger-name" y="-45" class="rider-name">Em</text>
+                </g>
+                <g transform="translate(65, -35)">
+                    <text id="driver-face" y="6" font-size="40" text-anchor="middle">🐷</text>
+                    <text id="driver-name" y="-45" class="rider-name">Heo</text>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <div class="footer">
+        <h1 id="footer-text">...</h1>
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+
+        // ===============================================
+        // 1. CẤU HÌNH
+        // ===============================================
+        const icons = ["🐨","🐯","🦁","🐮","🐰","🐻","🐻‍❄️","🐼","🦝","🐶","🐱","🐭","🐹","🐷","🐺","🦊","🐸"];
+
+        const defaultConfig = {
+            driver: { name: "Anh", face: 0 },
+            passenger: { name: "Em", face: 1 },
+
+            header: "Cuộn xuống để đi chơi nè!",
+            footer: "Đi chơi thôi!",
+
+            places: [
+                { name: "Nhà", description: "Đón đi chơi nè" },
+                { name: "Ăn uống", description: "Đi ăn bún bò" },
+                { name: "Công viên", description: "Đi dạo mát" },
+                { name: "Nhà", description: "Về ngủ" }
+            ],
+
+            segmentHeight: 500,
+            paddingTop: 300,
+            paddingBottom: 200,
+            svgWidth: 500
+        };
+
+        // Hàm nén object thành chuỗi Base64 an toàn
+        function encodeConfig(obj) {
+            const jsonStr = JSON.stringify(obj);
+            // Mẹo xử lý UTF-8 (Tiếng Việt + Emoji) trước khi btoa
+            return btoa(unescape(encodeURIComponent(jsonStr)));
+        }
+
+        // Hàm giải nén chuỗi Base64 thành object
+        function decodeConfig(str) {
+            try {
+                // BƯỚC 1: Khôi phục ký tự Base64 chuẩn
+                // Trang Create đã đổi '+' thành '-' và '/' thành '_' để không lỗi URL
+                // Giờ ta phải đổi ngược lại để hàm atob hiểu được.
+                let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+
+                // BƯỚC 2: Bù lại dấu bằng (=) còn thiếu (Padding)
+                // Chuỗi Base64 bắt buộc độ dài phải chia hết cho 4
+                while (base64.length % 4) {
+                    base64 += '=';
+                }
+
+                // BƯỚC 3: Giải mã UTF-8 (Cho tiếng Việt và Emoji)
+                const jsonStr = decodeURIComponent(escape(atob(base64)));
+                
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                console.error("URL không hợp lệ hoặc lỗi giải mã:", e);
+                // alert("Link hành trình bị lỗi rồi! Hãy kiểm tra lại nhé."); // Bật lên nếu muốn báo người dùng
+                return null;
+            }
+        }
+
+        let config = defaultConfig; // Mặc định dùng config gốc
+
+        // Kiểm tra xem trên URL có tham số ?data=... không
+        const params = new URLSearchParams(window.location.search);
+        const urlData = params.get('data');
+
+        if (urlData) {
+            const decodedData = decodeConfig(urlData);
+            if (decodedData) {
+                // Nếu giải mã thành công, ghi đè cấu hình
+                config = decodedData; 
+            }
+        }
+
+        // ===============================================
+        // 2. KHỞI TẠO TEXT
+        // ===============================================
+        document.getElementById("header-text").innerHTML = config.header;
+        document.getElementById("footer-text").innerHTML = config.footer;
+        document.getElementById("driver-name").textContent = config.driver.name;
+        document.getElementById("driver-face").textContent = icons[config.driver.face];
+        document.getElementById("passenger-name").textContent = config.passenger.name;
+        document.getElementById("passenger-face").textContent = icons[config.passenger.face];
+
+        // ===============================================
+        // 3. RENDER BẢN ĐỒ & HIỆU ỨNG SÁNG ĐÈN
+        // ===============================================
+        function setupMapAndRenderPlaces() {
+            // 1. TÍNH TOÁN SỐ KHÚC CUA & CHIỀU CAO
+            // (Dựa trên tổng số địa điểm trừ đi điểm đầu và điểm cuối)
+            // Ví dụ: 6 địa điểm -> còn 4 điểm giữa -> cần khoảng 5 khúc cua nối
+            config.numCurves = Math.max(1, config.places.length - 2);
+
+            const totalHeight = config.paddingTop + (config.numCurves * config.segmentHeight) + config.paddingBottom;
+
+            // Cập nhật chiều cao DOM & SVG
+            document.getElementById('map-container').style.height = totalHeight + "px";
+            document.getElementById('main-svg').setAttribute('viewBox', `0 0 ${config.svgWidth} ${totalHeight}`);
+
+            const placesGroup = document.getElementById('places-group');
+            placesGroup.innerHTML = ""; // Xóa sạch cũ
+
+            // 2. TÁCH DỮ LIỆU (Dùng bản copy để không làm hỏng config gốc khi chạy lại)
+            let tempPlaces = [...config.places]; // Copy mảng config.places ra mảng tạm
+
+            const startPlace = tempPlaces.shift(); // Lấy thằng đầu tiên
+            const endPlace = tempPlaces.pop();     // Lấy thằng cuối cùng
+            const middlePlaces = tempPlaces;       // Còn lại là khúc giữa
+
+
+            // --- HÀM CON ĐỂ VẼ 1 ĐỊA ĐIỂM (Tránh lặp code) ---
+            function renderSinglePlace(place, x, y) {
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                group.setAttribute("class", "place-group");
+
+                // Text Tên
+                const nameText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                nameText.setAttribute("x", x);
+                nameText.setAttribute("y", y);
+                nameText.setAttribute("class", "landmark");
+                nameText.textContent = place.name;
+                group.appendChild(nameText);
+
+                // Text Mô tả
+                if (place.description) {
+                    const descText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    descText.setAttribute("x", x);
+                    descText.setAttribute("y", y + 25);
+                    descText.setAttribute("class", "description");
+                    descText.textContent = place.description;
+                    group.appendChild(descText);
+                }
+
+                placesGroup.appendChild(group);
+
+                // ScrollTrigger cho địa điểm này
+                ScrollTrigger.create({
+                    trigger: group,
+                    start: "top 60%",
+                    end: "top 40%",
+                    onEnter: () => group.classList.add("active"),
+                    onLeaveBack: () => group.classList.remove("active")
+                });
+            }
+
+            // 3. VẼ ĐIỂM ĐẦU (START)
+            // Nằm ngay vị trí bắt đầu vẽ đường (paddingTop)
+            if (startPlace) {
+                renderSinglePlace(startPlace, config.svgWidth / 2, config.paddingTop / 2);
+            }
+
+            // 4. VẼ CÁC ĐIỂM GIỮA (MIDDLE)
+            // Các điểm này nằm ở các khớp nối của đường cong
+            middlePlaces.forEach((place, index) => {
+                // Tính vị trí Y: Bắt đầu từ sau khúc cua thứ nhất
+                const posY = config.paddingTop + ((index) * config.segmentHeight + config.segmentHeight / 2);
+                renderSinglePlace(place, config.svgWidth / 2, posY);
+            });
+
+            // 5. VẼ ĐIỂM CUỐI (END)
+            // Nằm ở cuối con đường
+            if (endPlace) {
+                const endY = config.paddingTop + (config.numCurves * config.segmentHeight);
+                renderSinglePlace(endPlace, config.svgWidth / 2, endY + config.paddingBottom / 2);
+            }
+
+            return { totalHeight };
+        }
+
+        // ===============================================
+        // 4. VẼ ĐƯỜNG
+        // ===============================================
+        function generatePath() {
+            const startX = config.svgWidth / 2;
+            const startY = config.paddingTop;
+
+            let d = `M ${startX}, ${startY}`;
+            let currentY = startY;
+
+            for (let i = 0; i < config.numCurves; i++) {
+                const direction = (i % 2 === 1) ? -1 : 1;
+                const amplitude = 180 + (Math.random() * 40);
+                const randomXShift = (Math.random() - 0.5) * 30;
+
+                const endX = (config.svgWidth / 2) + randomXShift;
+                const endY = currentY + config.segmentHeight;
+
+                const cp1x = (config.svgWidth / 2) + (direction * amplitude);
+                const cp1y = currentY + (config.segmentHeight * 0.25);
+                const cp2x = (config.svgWidth / 2) + (direction * amplitude);
+                const cp2y = currentY + (config.segmentHeight * 0.75);
+
+                d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${endX},${endY}`;
+                currentY = endY;
+            }
+            return d;
+        }
+
+        // --- CHẠY ---
+        setupMapAndRenderPlaces();
+        const pathData = generatePath();
+        document.getElementById("path-road").setAttribute("d", pathData);
+
+        // Xe chạy
+        gsap.to("#bike-group", {
+            scrollTrigger: {
+                trigger: "#path-road",
+                start: "top center",
+                end: "bottom center",
+                scrub: 1,
+            },
+            motionPath: {
+                path: "#path-road",
+                align: "#path-road",
+                autoRotate: true,
+                alignOrigin: [0.5, 0.8]
+            },
+            ease: "none"
+        });
+
+    </script>
+</body>
+
+</html>
