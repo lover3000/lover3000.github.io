@@ -142,6 +142,13 @@
             
             <button type="button" class="btn-add" onclick="addPlaceInput()">+ Thêm địa điểm mới</button>
 
+            <h2>4. Nhạc nền (YouTube)</h2>
+            <div class="form-group">
+                <label>Dán link bài hát YouTube vào đây:</label>
+                <input type="text" id="youtubeLink" placeholder="Ví dụ: https://www.youtube.com/watch?v=jfKfPfyJRdk">
+                <p style="font-size: 0.9em; color: #666;">(Lưu ý: Chọn bài nào chill chill nhé)</p>
+            </div>
+
             <button type="button" class="btn-submit" onclick="generateLink()">✨ TẠO & XEM BẢN ĐỒ ✨</button>
             
             <div id="resultArea" class="preview-box">
@@ -188,7 +195,12 @@
         // 3. Biến đổi thành URL-Safe Base64 (Thay + thành -, / thành _)
         return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
-
+    function getYouTubeID(url) {
+        if (!url) return "";
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : "";
+    }
     function renderPlacesInputs() {
         const container = document.getElementById('placesContainer');
         container.innerHTML = ""; 
@@ -249,6 +261,8 @@
             alert("Vui lòng nhập ít nhất 2 địa điểm!");
             return;
         }
+        const youtubeUrl = document.getElementById('youtubeLink').value;
+        const musicId = getYouTubeID(youtubeUrl);
 
         const config = {
             driver: { 
@@ -262,6 +276,8 @@
             header: document.getElementById('headerText').value,
             footer: document.getElementById('footerText').value,
             places: finalPlaces,
+
+            musicId: musicId,
             
             segmentHeight: 500,
             paddingTop: 300,

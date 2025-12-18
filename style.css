@@ -1,0 +1,149 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #fdcdcd;
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+}
+
+.map-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#path-road {
+    fill: none;
+    stroke: #795548;
+    stroke-width: 12;
+    stroke-dasharray: 20, 15;
+    stroke-linecap: round;
+}
+
+.landmark {
+    font-family: 'Amatic SC', cursive;
+    font-size: 35px;
+    font-weight: bold;
+    fill: #d32f2f;
+    text-anchor: middle;
+    text-shadow: 2px 2px 0px white;
+}
+
+.description {
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    fill: #000;
+    text-anchor: middle;
+    /* font-style: italic; */
+}
+
+/* --- STYLE MỚI CHO HIỆU ỨNG SÁNG/TỐI --- */
+.place-group {
+    opacity: 0.15;
+    /* Mặc định mờ đi (như chưa đi tới) */
+    transition: all 0.5s ease-out;
+    /* Hiệu ứng chuyển đổi mượt */
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0.9);
+    /* Nhỏ hơn xíu */
+    filter: grayscale(100%);
+    /* Trắng đen */
+}
+
+.place-group.active {
+    opacity: 1;
+    /* Sáng rõ */
+    transform: scale(1.1);
+    /* Phóng to lên chút cho nổi bật */
+    filter: grayscale(0%);
+    /* Có màu lại */
+}
+
+/* --------------------------------------- */
+
+.tree {
+    position: absolute;
+    font-size: 40px;
+    z-index: 2;
+}
+
+.header,
+.footer {
+    font-family: 'Amatic SC', cursive;
+    height: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fdcdcd;
+    color: white;
+    font-size: 2.5rem;
+    z-index: 10;
+    position: relative;
+    padding: 20px;
+    text-align: center;
+}
+
+.rider-name {
+    font-family: 'Amatic SC', cursive;
+    font-size: 30px;
+    font-weight: bold;
+    fill: #333;
+    text-anchor: middle;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+.music-control {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 24px;
+    transition: transform 0.3s;
+}
+
+/* Hiệu ứng xoay khi nhạc đang phát */
+.music-control.playing {
+    animation: spin 3s linear infinite;
+    background: #fff;
+    /* Màu vàng khi hát */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Ẩn cái khung video YouTube đi để chỉ nghe tiếng */
+#youtube-player {
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    opacity: 0;
+    pointer-events: none;
+}
