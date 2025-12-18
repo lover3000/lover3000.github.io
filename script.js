@@ -39,7 +39,7 @@ const defaultConfig = {
 
   segmentHeight: 500,
   paddingTop: 300,
-  paddingBottom: 200,
+  paddingBottom: 300,
   svgWidth: 500,
 };
 
@@ -174,7 +174,7 @@ function setupMapAndRenderPlaces() {
   // 3. VẼ ĐIỂM ĐẦU (START)
   // Nằm ngay vị trí bắt đầu vẽ đường (paddingTop)
   if (startPlace) {
-    renderSinglePlace(startPlace, config.svgWidth / 2, config.paddingTop / 2);
+    renderSinglePlace(startPlace, config.svgWidth / 2, config.paddingTop / 4);
   }
 
   // 4. VẼ CÁC ĐIỂM GIỮA (MIDDLE)
@@ -194,7 +194,7 @@ function setupMapAndRenderPlaces() {
     renderSinglePlace(
       endPlace,
       config.svgWidth / 2,
-      endY + config.paddingBottom / 2
+      endY + config.paddingBottom*(config.numCurves %2 === 0? 0.5 : 0.75)
     );
   }
 
@@ -261,34 +261,47 @@ let isPlaying = false;
 
 // Kiểm tra xem config có nhạc không
 if (config.musicId) {
-  musicBtn.style.display = "flex"; // Hiện nút nếu có nhạc
+    musicBtn.style.display = "flex"; // Hiện nút
 
-  musicBtn.addEventListener("click", () => {
-    if (isPlaying) {
-      // Tắt nhạc: Xóa iframe đi cho nhanh gọn
-      playerDiv.innerHTML = "";
-      musicBtn.classList.remove("playing");
-      musicBtn.innerHTML = "🎵"; // Icon nốt nhạc tĩnh
-      isPlaying = false;
-    } else {
-      // Bật nhạc: Chèn Iframe YouTube vào
-      // autoplay=1: Tự chạy
-      // loop=1: Tự lặp lại
-      // playlist=...: Cần thiết để loop hoạt động
-      const iframeHtml = `
-                    <iframe width="1" height="1" 
-                        src="https://www.youtube.com/embed/${config.musicId}?autoplay=1&loop=1&playlist=${config.musicId}" 
-                        title="YouTube audio" frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                    </iframe>`;
+    // KHỞI TẠO AUDIO PLAYER
+    // config.musicId lúc này chứa đường dẫn: "assets/bgm/chill.mp3"
+    audioPlayer = new Audio(config.musicId);
+    
+    // Cấu hình: Lặp lại liên tục & Tải trước cho mượt
+    audioPlayer.loop = true;      
+    audioPlayer.preload = 'auto'; 
 
-      playerDiv.innerHTML = iframeHtml;
-      musicBtn.classList.add("playing");
-      musicBtn.innerHTML = "💿"; // Icon đĩa than xoay
-      isPlaying = true;
-    }
-  });
+    musicBtn.addEventListener("click", () => {
+        if (isPlaying) {
+            // --- TẮT NHẠC ---
+            if (audioPlayer) {
+                audioPlayer.pause(); // Dừng phát
+            }
+            
+            musicBtn.classList.remove("playing");
+            musicBtn.innerHTML = "🎵"; // Icon nốt nhạc tĩnh
+            isPlaying = false;
+        } else {
+            // --- BẬT NHẠC ---
+            if (audioPlayer) {
+                // Lệnh play() trả về một Promise, ta cần catch lỗi nếu trình duyệt chặn
+                audioPlayer.play()
+                    .then(() => {
+                        // Phát thành công
+                        musicBtn.classList.add("playing");
+                        musicBtn.innerHTML = "💿"; // Icon đĩa xoay
+                        isPlaying = true;
+                    })
+                    .catch(error => {
+                        console.error("Lỗi phát nhạc:", error);
+                        alert("Không thể phát nhạc. Kiểm tra lại đường dẫn file hoặc quyền trình duyệt!");
+                        // Reset nút về trạng thái tắt
+                        musicBtn.classList.remove("playing");
+                        musicBtn.innerHTML = "❌";
+                    });
+            }
+        }
+    });
 } else {
-  musicBtn.style.display = "none"; // Ẩn nút nếu không có link nhạc
+    musicBtn.style.display = "none"; // Ẩn nút nếu không có nhạc
 }

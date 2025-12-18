@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo Lộ Trình</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+
     <style>
         body {
             background-color: #fdcdcd;
             font-family: 'Nunito', sans-serif;
-            margin: 0; padding: 20px;
+            margin: 0;
+            padding: 20px;
             color: #333;
         }
 
@@ -20,20 +23,42 @@
             background: white;
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        h1, h2 {
+        h1,
+        h2 {
             font-family: 'Amatic SC', cursive;
             text-align: center;
             color: #d32f2f;
         }
-        h1 { font-size: 3rem; margin-bottom: 10px; }
-        h2 { font-size: 2rem; border-bottom: 2px dashed #fdcdcd; padding-bottom: 10px; margin-top: 30px; }
 
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input, select, textarea {
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            border-bottom: 2px dashed #fdcdcd;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input,
+        select,
+        textarea {
             width: 100%;
             padding: 10px;
             border: 2px solid #eee;
@@ -42,10 +67,20 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-        input:focus { border-color: #ff4081; outline: none; }
 
-        .row { display: flex; gap: 15px; }
-        .col { flex: 1; }
+        input:focus {
+            border-color: #ff4081;
+            outline: none;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .col {
+            flex: 1;
+        }
 
         /* Style cho danh sách địa điểm */
         .place-item {
@@ -56,12 +91,18 @@
             position: relative;
             border: 1px solid #ffcdd2;
         }
+
         .btn-remove {
             position: absolute;
-            top: 10px; right: 10px;
-            background: #ff5252; color: white;
-            border: none; width: 25px; height: 25px;
-            border-radius: 50%; cursor: pointer;
+            top: 10px;
+            right: 10px;
+            background: #ff5252;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
             font-weight: bold;
         }
 
@@ -75,7 +116,11 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-add:hover { border-color: #ff4081; color: #ff4081; }
+
+        .btn-add:hover {
+            border-color: #ff4081;
+            color: #ff4081;
+        }
 
         .btn-submit {
             display: block;
@@ -91,38 +136,44 @@
             margin-top: 30px;
             transition: transform 0.2s;
         }
-        .btn-submit:hover { transform: scale(1.02); background: #1565C0; }
+
+        .btn-submit:hover {
+            transform: scale(1.02);
+            background: #1565C0;
+        }
 
         .preview-box {
             margin-top: 20px;
             padding: 15px;
             background: #e3f2fd;
             border-radius: 10px;
-            display: none; /* Ẩn mặc định */
+            display: none;
+            /* Ẩn mặc định */
             word-break: break-all;
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
-        <h1>Thiết Kế Chuyến Đi 🛵</h1>
+        <h1>Thiết Kế Chuyến Đi</h1>
         <p style="text-align: center; color: #777;">Điền thông tin bên dưới để tạo bản đồ du lịch</p>
 
         <form id="tripForm">
             <h2>1. Nhân Vật</h2>
             <div class="row">
                 <div class="col">
-                    <label>Người lái (Driver)</label>
+                    <label>Người lái</label>
                     <input type="text" id="driverName" value="Anh" placeholder="Tên">
                     <select id="driverFace" style="margin-top: 5px;">
-                        </select>
+                    </select>
                 </div>
                 <div class="col">
                     <label>Người ngồi sau</label>
                     <input type="text" id="passName" value="Em" placeholder="Tên">
                     <select id="passFace" style="margin-top: 5px;">
-                        </select>
+                    </select>
                 </div>
             </div>
 
@@ -138,19 +189,27 @@
 
             <h2>3. Các Địa Điểm</h2>
             <div id="placesContainer">
-                </div>
-            
+            </div>
+
             <button type="button" class="btn-add" onclick="addPlaceInput()">+ Thêm địa điểm mới</button>
 
-            <h2>4. Nhạc nền (YouTube)</h2>
+            <h2>4. Nhạc nền</h2>
             <div class="form-group">
-                <label>Dán link bài hát YouTube vào đây:</label>
-                <input type="text" id="youtubeLink" placeholder="Ví dụ: https://www.youtube.com/watch?v=jfKfPfyJRdk">
-                <p style="font-size: 0.9em; color: #666;">(Lưu ý: Chọn bài nào chill chill nhé)</p>
+                <label>Chọn nhạc có sẵn trong kho:</label>
+
+                <select id="musicSelect" style="height: 50px; font-size: 16px; margin-bottom: 15px;">
+                    <option value="">-- Không dùng nhạc --</option>
+                </select>
+
+                <div id="previewArea"
+                    style="display: none; background: #f1f8e9; padding: 10px; border-radius: 10px; border: 1px dashed #8bc34a;">
+                    <p style="margin: 0 0 5px 0; color: #558b2f; font-weight: bold; font-size: 0.9em;">🎧 Nghe thử:</p>
+                    <audio id="previewPlayer" controls style="width: 100%; height: 35px;"></audio>
+                </div>
             </div>
 
             <button type="button" class="btn-submit" onclick="generateLink()">✨ TẠO & XEM BẢN ĐỒ ✨</button>
-            
+
             <div id="resultArea" class="preview-box">
                 <p><strong>Link của bạn:</strong></p>
                 <a id="finalLink" href="#" target="_blank">Click vào đây để mở</a>
@@ -159,54 +218,94 @@
     </div>
 
     <script>
-    const icons = ["🐨","🐯","🦁","🐮","🐰","🐻","🐻‍❄️","🐼","🦝","🐶","🐱","🐭","🐹","🐷","🐺","🦊","🐸"];
-    
-    // Mặc định
-    let places = [
-        { name: "Nhà", description: "Đón đi chơi nè" },
-        { name: "Ăn uống", description: "Đi ăn bún bò" },
-        { name: "Công viên", description: "Đi dạo mát" },
-        { name: "Nhà", description: "Về ngủ" }
-    ];
+        const icons = ["🐨", "🐯", "🦁", "🐮", "🐰", "🐻", "🐻‍❄️", "🐼", "🦝", "🐶", "🐱", "🐭", "🐹", "🐷", "🐺", "🦊", "🐸"];
 
-    function init() {
-        // 1. Render Select Box
-        const driverSelect = document.getElementById('driverFace');
-        const passSelect = document.getElementById('passFace');
-        
-        icons.forEach((icon, index) => {
-            const option = `<option value="${index}">${icon} Con vật ${index + 1}</option>`;
-            driverSelect.innerHTML += option;
-            passSelect.innerHTML += option;
-        });
-        driverSelect.value = 0;
-        passSelect.value = 1;
+        // Mặc định
+        let places = [
+            { name: "Nhà", description: "Đón đi chơi nè" },
+            { name: "Ăn uống", description: "Đi ăn bún bò" },
+            { name: "Công viên", description: "Đi dạo mát" },
+            { name: "Nhà", description: "Về ngủ" }
+        ];
 
-        // 2. Render Input
-        renderPlacesInputs();
-    }
+        const musicLibrary = [
+            { name: "happy_bonbon", file: "/assets/bgm/happy_bonbon.mp3" },
+            { name: "happy_guitar", file: "/assets/bgm/happy_guitar.mp3" },
+            { name: "happy_piano", file: "/assets/bgm/happy_piano.mp3" },
+            { name: "noi_nay_co_anh", file: "/assets/bgm/noi_nay_co_anh.mp3" },
+            { name: "phonecert", file: "/assets/bgm/phonecert.mp3" },
+            { name: "up_violin", file: "/assets/bgm/up_violin.mp3" },
+            { name: "wibu_kiminoto", file: "/assets/bgm/wibu_kiminoto.mp3" },
+            { name: "cute_kinchana", file: "/assets/bgm/cute_kinchana.mp3" },
+            { name: "sad_vet_mua", file: "/assets/bgm/sad_vet_mua.mp3" }
+        ];
 
-    // --- HÀM MÃ HÓA AN TOÀN CHO URL (QUAN TRỌNG) ---
-    function encodeData(obj) {
-        // 1. Chuyển Object -> JSON String
-        const jsonStr = JSON.stringify(obj);
-        // 2. Mã hóa UTF-8 an toàn cho tiếng Việt/Emoji
-        const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
-        // 3. Biến đổi thành URL-Safe Base64 (Thay + thành -, / thành _)
-        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-    function getYouTubeID(url) {
-        if (!url) return "";
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : "";
-    }
-    function renderPlacesInputs() {
-        const container = document.getElementById('placesContainer');
-        container.innerHTML = ""; 
+        function init() {
+            // 1. Render Select Box
+            const driverSelect = document.getElementById('driverFace');
+            const passSelect = document.getElementById('passFace');
 
-        places.forEach((place, index) => {
-            const html = `
+            icons.forEach((icon, index) => {
+                const option = `<option value="${index}">${icon} Con vật ${index + 1}</option>`;
+                driverSelect.innerHTML += option;
+                passSelect.innerHTML += option;
+            });
+            driverSelect.value = 0;
+            passSelect.value = 1;
+
+            // 2. Render Input
+            renderPlacesInputs();
+
+            // 1. RENDER LIST NHẠC VÀO SELECT BOX
+            const musicSelect = document.getElementById('musicSelect');
+            musicLibrary.forEach(song => {
+                const option = `<option value="${song.file}">${song.name}</option>`;
+                musicSelect.innerHTML += option;
+            });
+
+            // 2. XỬ LÝ SỰ KIỆN KHI CHỌN NHẠC (NGHE THỬ)
+            const previewArea = document.getElementById('previewArea');
+            const previewPlayer = document.getElementById('previewPlayer');
+
+            musicSelect.addEventListener('change', function () {
+                const selectedPath = this.value;
+
+                if (selectedPath) {
+                    // Có chọn bài -> Hiện trình phát & Chơi nhạc
+                    previewArea.style.display = 'block';
+                    previewPlayer.src = selectedPath;
+                    previewPlayer.volume = 0.5; // Để âm lượng vừa phải
+                    previewPlayer.play().catch(e => console.log("Trình duyệt chặn autoplay, bấm play thủ công nhé"));
+                } else {
+                    // Không chọn bài (chọn dòng đầu tiên) -> Ẩn trình phát
+                    previewArea.style.display = 'none';
+                    previewPlayer.pause();
+                    previewPlayer.src = "";
+                }
+            });
+        }
+
+        // --- HÀM MÃ HÓA AN TOÀN CHO URL (QUAN TRỌNG) ---
+        function encodeData(obj) {
+            // 1. Chuyển Object -> JSON String
+            const jsonStr = JSON.stringify(obj);
+            // 2. Mã hóa UTF-8 an toàn cho tiếng Việt/Emoji
+            const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+            // 3. Biến đổi thành URL-Safe Base64 (Thay + thành -, / thành _)
+            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+        function getYouTubeID(url) {
+            if (!url) return "";
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : "";
+        }
+        function renderPlacesInputs() {
+            const container = document.getElementById('placesContainer');
+            container.innerHTML = "";
+
+            places.forEach((place, index) => {
+                const html = `
                 <div class="place-item">
                     <button type="button" class="btn-remove" onclick="removePlace(${index})">×</button>
                     <div class="form-group">
@@ -218,92 +317,92 @@
                     </div>
                 </div>
             `;
-            container.innerHTML += html;
-        });
-    }
-
-    function addPlaceInput() {
-        saveCurrentInputValues(); // Lưu cái cũ trước khi thêm
-        places.push({ name: "", description: "" });
-        renderPlacesInputs();
-    }
-
-    function removePlace(index) {
-        if (places.length <= 2) {
-            alert("Cần ít nhất 2 địa điểm!");
-            return;
-        }
-        saveCurrentInputValues();
-        places.splice(index, 1);
-        renderPlacesInputs();
-    }
-
-    function saveCurrentInputValues() {
-        const nameInputs = document.querySelectorAll('.input-place-name');
-        const descInputs = document.querySelectorAll('.input-place-desc');
-        
-        places = [];
-        nameInputs.forEach((input, i) => {
-            places.push({
-                name: input.value,
-                description: descInputs[i].value // ĐỒNG NHẤT TÊN BIẾN LÀ description
+                container.innerHTML += html;
             });
-        });
-    }
-
-    function generateLink() {
-        saveCurrentInputValues(); // Lưu lần cuối
-
-        // Lọc bỏ các ô trống
-        const finalPlaces = places.filter(p => p.name.trim() !== "");
-
-        if (finalPlaces.length < 2) {
-            alert("Vui lòng nhập ít nhất 2 địa điểm!");
-            return;
         }
-        const youtubeUrl = document.getElementById('youtubeLink').value;
-        const musicId = getYouTubeID(youtubeUrl);
 
-        const config = {
-            driver: { 
-                name: document.getElementById('driverName').value, 
-                face: parseInt(document.getElementById('driverFace').value) 
-            },
-            passenger: { 
-                name: document.getElementById('passName').value, 
-                face: parseInt(document.getElementById('passFace').value) 
-            },
-            header: document.getElementById('headerText').value,
-            footer: document.getElementById('footerText').value,
-            places: finalPlaces,
+        function addPlaceInput() {
+            saveCurrentInputValues(); // Lưu cái cũ trước khi thêm
+            places.push({ name: "", description: "" });
+            renderPlacesInputs();
+        }
 
-            musicId: musicId,
-            
-            segmentHeight: 500,
-            paddingTop: 300,
-            paddingBottom: 200,
-            svgWidth: 500
-        };
+        function removePlace(index) {
+            if (places.length <= 2) {
+                alert("Cần ít nhất 2 địa điểm!");
+                return;
+            }
+            saveCurrentInputValues();
+            places.splice(index, 1);
+            renderPlacesInputs();
+        }
 
-        // GỌI HÀM MÃ HÓA MỚI
-        const encoded = encodeData(config);
+        function saveCurrentInputValues() {
+            const nameInputs = document.querySelectorAll('.input-place-name');
+            const descInputs = document.querySelectorAll('.input-place-desc');
 
-        // Tạo Link
-        // LƯU Ý: Sửa tên file 'index.html' thành tên file bản đồ thực tế của bạn
-        const mapFileName = "index.html"; 
-        const fullUrl = `${window.location.origin}?data=${encoded}`;
+            places = [];
+            nameInputs.forEach((input, i) => {
+                places.push({
+                    name: input.value,
+                    description: descInputs[i].value // ĐỒNG NHẤT TÊN BIẾN LÀ description
+                });
+            });
+        }
 
-        // Hiển thị
-        document.getElementById('resultArea').style.display = 'block';
-        const linkTag = document.getElementById('finalLink');
-        linkTag.href = fullUrl;
-        linkTag.innerText = fullUrl;
-        
-        // Mở luôn
-        // window.open(fullUrl, '_blank'); 
-    }
+        function generateLink() {
+            saveCurrentInputValues(); // Lưu lần cuối
 
-    init();
-</script>
+            // Lọc bỏ các ô trống
+            const finalPlaces = places.filter(p => p.name.trim() !== "");
+
+            if (finalPlaces.length < 2) {
+                alert("Vui lòng nhập ít nhất 2 địa điểm!");
+                return;
+            }
+            const musicId = document.getElementById('musicSelect').value;
+
+            const config = {
+                driver: {
+                    name: document.getElementById('driverName').value,
+                    face: parseInt(document.getElementById('driverFace').value)
+                },
+                passenger: {
+                    name: document.getElementById('passName').value,
+                    face: parseInt(document.getElementById('passFace').value)
+                },
+                header: document.getElementById('headerText').value,
+                footer: document.getElementById('footerText').value,
+                places: finalPlaces,
+
+                musicId: musicId,
+
+                segmentHeight: 500,
+                paddingTop: 300,
+                paddingBottom: 300,
+                svgWidth: 500
+            };
+
+            // GỌI HÀM MÃ HÓA MỚI
+            const encoded = encodeData(config);
+
+            // Tạo Link
+            // LƯU Ý: Sửa tên file 'index.html' thành tên file bản đồ thực tế của bạn
+            const mapFileName = "index.html";
+            const fullUrl = `${window.location.origin}?data=${encoded}`;
+
+            // Hiển thị
+            document.getElementById('resultArea').style.display = 'block';
+            const linkTag = document.getElementById('finalLink');
+            linkTag.href = fullUrl;
+            linkTag.innerText = fullUrl;
+
+            // Mở luôn
+            // window.open(fullUrl, '_blank'); 
+        }
+
+        init();
+    </script>
 </body>
+
 </html>
